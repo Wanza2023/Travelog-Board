@@ -94,7 +94,7 @@ public class BoardController {
         String authorization = request.getHeader("Authorization");
         String token = authorization.split(" ")[1];
         BoardBookmarkDto dto = new BoardBookmarkDto(token, boardId);
-        String bookmarkStatus = "false";
+        Boolean bookmarkStatus = false;
         try{
             bookmarkStatus = memberServiceFeignClient.isBookmark(dto);
         } catch (FeignException e){

@@ -68,7 +68,7 @@ public class BoardService {
 
     // 게시글 조회(조회수 증가)
     @Transactional
-    public BoardResDto readBoard(long id, String nickname, List<Comment> comments, String bookmark){
+    public BoardResDto readBoard(long id, String nickname, List<Comment> comments, boolean bookmark){
         Board board = boardRepository.findByBoardIdAndNickname(id, nickname);
         System.out.println(board);
         board.updateViews(board.getViews()+1);

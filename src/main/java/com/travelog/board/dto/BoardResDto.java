@@ -31,7 +31,7 @@ public class BoardResDto {
     private LocalDateTime updatedAt;
     private boolean status;
     private int views;
-    private String bookmark;
+    private boolean bookmark;
 
     // public BoardResDto (Board board){
     //     this.boardId = board.getBoardId();
@@ -47,7 +47,7 @@ public class BoardResDto {
 
     // }
 
-    public BoardResDto(Board board, List<Comment> comments, String bookmark){
+    public BoardResDto(Board board, List<Comment> comments, boolean bookmark){
         this.boardId = board.getBoardId();
         this.nickname = board.getNickname();
         this.local = board.getLocal();

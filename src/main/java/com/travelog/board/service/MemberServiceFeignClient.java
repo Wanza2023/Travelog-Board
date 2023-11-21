@@ -10,5 +10,5 @@ import org.springframework.web.bind.annotation.RequestMethod;
 public interface MemberServiceFeignClient {
 
     @RequestMapping(method = RequestMethod.POST, value = "/bookmark/isBookmark")
-    String isBookmark(@RequestBody BoardBookmarkDto dto);
+    Boolean isBookmark(@RequestBody BoardBookmarkDto dto);
 }
