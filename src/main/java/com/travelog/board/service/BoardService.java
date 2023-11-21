@@ -1,9 +1,6 @@
 package com.travelog.board.service;
 
-import com.travelog.board.dto.BoardListResDto;
-import com.travelog.board.dto.BoardReqDto;
-import com.travelog.board.dto.BoardResDto;
-import com.travelog.board.dto.BookmarkListResDto;
+import com.travelog.board.dto.*;
 import com.travelog.board.entity.Board;
 import com.travelog.board.entity.BoardHashtag;
 import com.travelog.board.entity.Comment;
@@ -11,14 +8,12 @@ import com.travelog.board.entity.Hashtag;
 import com.travelog.board.repository.BoardHashtagRepository;
 import com.travelog.board.repository.BoardRepository;
 import com.travelog.board.repository.HashtagRepository;
-import feign.FeignException;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 @AllArgsConstructor
 @Service
@@ -30,9 +25,6 @@ public class BoardService {
     @Autowired
     private final BoardHashtagRepository boardHashtagRepository;
 
-    @Autowired
-    private final CommentServiceFeignClient commentServiceFeignClient;
-
     // 북마크 조회
     @Transactional(readOnly = true)
     public List<BookmarkListResDto> getBoards(List<Long> boardIds){
@@ -41,42 +33,20 @@ public class BoardService {
 
     // 인기글 조회
     @Transactional(readOnly = true)
-    public List<BoardListResDto> getPopular(){
+    public List<PopularListDto> getPopular(){
         return boardRepository.findTop10();
-//        List<String> hashtags;
-//        List<BoardListResDto> boardList = new ArrayList<>();
-//        for (Board board: boards){
-//            hashtags = boardHashtagRepository.findAllHashtag(board.getBoardId());
-//            boardList.add(new BoardListResDto(board, hashtags));
-//        }
-//        return boardList;
     }
 
     //블로그 게시글 목록 조회
     @Transactional(readOnly = true)
     public List<BoardListResDto> getBlogHome(String nickname){
         return boardRepository.findByNickname(nickname);
-//        List<Board> boards = boardRepository.findAllByName(nickname);
-//        List<String> hashtags;
-//        List<BoardListResDto> boardList = new ArrayList<>();
-//        for (Board board: boards){
-//            hashtags = boardHashtagRepository.findAllHashtag(board.getBoardId());
-//            boardList.add(new BoardListResDto(board, hashtags));
-//        }
-//        return boardList;
     }
 
     //지역별 게시글 목록 조회
     @Transactional(readOnly = true)
     public List<BoardListResDto> getLocalSearch(String local) {
         return boardRepository.findByLocal(local);
-//        List<String> hashtags;
-//        List<BoardListResDto> boardList = new ArrayList<>();
-//        for (Board board: boards){
-//            hashtags = boardHashtagRepository.findAllHashtag(board.getBoardId());
-//            boardList.add(new BoardListResDto(board, hashtags));
-//        }
-//        return boardList;
     }
 
     //해시태그 목록
@@ -94,13 +64,6 @@ public class BoardService {
     @Transactional(readOnly = true)
     public List<BoardListResDto> getSearch(String query){
         return boardRepository.findByTitleOrContentsContaining(query);
-//        List<String> hashtags;
-//        List<BoardListResDto> boardList = new ArrayList<>();
-//        for (Board board: boards){
-//            hashtags = boardHashtagRepository.findAllHashtag(board.getBoardId());
-//            boardList.add(new BoardListResDto(board, hashtags));
-//        }
-//        return boardList;
     }
 
     // 게시글 조회(조회수 증가)

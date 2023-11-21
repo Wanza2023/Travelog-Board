@@ -1,6 +1,5 @@
 package com.travelog.board.controller;
 
-import com.fasterxml.jackson.databind.util.JSONPObject;
 import com.travelog.board.dto.*;
 import com.travelog.board.entity.Board;
 import com.travelog.board.entity.Comment;
@@ -9,7 +8,6 @@ import com.travelog.board.service.CommentServiceFeignClient;
 import com.travelog.board.service.MemberServiceFeignClient;
 import com.travelog.board.service.ScheduleService;
 import feign.FeignException;
-import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import io.swagger.v3.oas.annotations.Operation;
@@ -44,7 +42,7 @@ public class BoardController {
     // 인기글 조회
     @GetMapping
     public ResponseEntity<?> getPopular(){
-        List<BoardListResDto> dtos = boardService.getPopular();
+        List<PopularListDto> dtos = boardService.getPopular();
         return new ResponseEntity<>(CMRespDto.builder()
                 .isSuccess(true).msg("인기글 10개 조회").body(dtos).build(),HttpStatus.OK);
     }
@@ -96,15 +94,14 @@ public class BoardController {
         String authorization = request.getHeader("Authorization");
         String token = authorization.split(" ")[1];
         BoardBookmarkDto dto = new BoardBookmarkDto(token, boardId);
-        String bookmark = null;
+        String bookmarkStatus = "false";
         try{
-            bookmark = memberServiceFeignClient.isBookmark(dto);
-            System.out.println(bookmark);
+            bookmarkStatus = memberServiceFeignClient.isBookmark(dto);
         } catch (FeignException e){
             System.out.println(e.getMessage());
         }
 
-        BoardResDto board =  boardService.readBoard(boardId, nickname, comments, bookmark);
+        BoardResDto board =  boardService.readBoard(boardId, nickname, comments, bookmarkStatus);
         return new ResponseEntity<>(CMRespDto.builder()
                 .isSuccess(true).msg("게시글이 조회되었습니다.").body(board).build(), HttpStatus.OK);
     }
