@@ -13,6 +13,7 @@ import jakarta.validation.Valid;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,6 +21,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@Slf4j
 @AllArgsConstructor
 @RestController
 @RequestMapping("/board")
@@ -84,26 +86,31 @@ public class BoardController {
     // 글 조회 OK
     @GetMapping(value = "/{nickname}/{boardId}")
     public ResponseEntity<?> getBoard(@PathVariable String nickname, @PathVariable Long boardId, HttpServletRequest request){
+
         List<Comment> comments = null;
+        Boolean bookmarkStatus = false;
+        String reqHeader = request.getHeader("Authorization");
+
         try{
             comments = commentServiceFeignClient.getComments(boardId);
         } catch (FeignException e){
-            System.out.println(e.getMessage());
+            log.error("error={}", e.getMessage());
         }
 
-        String authorization = request.getHeader("Authorization");
-        String token = authorization.split(" ")[1];
-        BoardBookmarkDto dto = new BoardBookmarkDto(token, boardId);
-        Boolean bookmarkStatus = false;
-        try{
-            bookmarkStatus = memberServiceFeignClient.isBookmark(dto);
-        } catch (FeignException e){
-            System.out.println(e.getMessage());
+        if (reqHeader != null && reqHeader.startsWith("Bearer")) {
+            String token = reqHeader.split(" ")[1];
+            BoardBookmarkDto dto = new BoardBookmarkDto(token, boardId);
+            try {
+                bookmarkStatus = memberServiceFeignClient.isBookmark(dto);
+            } catch (FeignException e) {
+                log.error("error={}", e.getMessage());
+            }
         }
 
-        BoardResDto board =  boardService.readBoard(boardId, nickname, comments, bookmarkStatus);
+        BoardResDto respDto =  boardService.readBoard(boardId, nickname, comments, bookmarkStatus);
+
         return new ResponseEntity<>(CMRespDto.builder()
-                .isSuccess(true).msg("게시글이 조회되었습니다.").body(board).build(), HttpStatus.OK);
+                .isSuccess(true).msg("게시글이 조회되었습니다.").body(respDto).build(), HttpStatus.OK);
     }
 
     //글 생성 + 일정 생성 OK
