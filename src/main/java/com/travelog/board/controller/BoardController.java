@@ -15,6 +15,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @AllArgsConstructor
@@ -52,7 +53,17 @@ public class BoardController {
     @Operation(summary = "개인 홈 조회", description = "nickname을 이용해 board 목록을 조회합니다.")
     @GetMapping(value = "/{nickname}")
     public ResponseEntity<?> getBlogHome(@PathVariable String nickname){
-        List<BoardListResDto> dtos = boardService.getBlogHome(nickname);
+        List<BoardListDto> boards = boardService.getBlogHome(nickname);
+        List<BoardListResDto> dtos = new ArrayList<>();
+        for(BoardListDto board: boards){
+            int commentSize = 0;
+            try {
+                commentSize = commentServiceFeignClient.getComments(board.getBoardId()).size();
+            } catch (FeignException e){
+                System.out.println(e.getMessage());
+            }
+            dtos.add(new BoardListResDto(board, commentSize));
+        }
         return new ResponseEntity<>(CMRespDto.builder()
                 .isSuccess(true).msg("블로그 게시글 목록이 조회되었습니다.").body(dtos).build(), HttpStatus.OK);
     }
@@ -60,7 +71,17 @@ public class BoardController {
     //지역별 게시글 조회
     @GetMapping(value = "/local/{local}")
     public ResponseEntity<?> getLocalSearch(@PathVariable String local){
-        List<BoardListResDto> dtos = boardService.getLocalSearch(local);
+        List<BoardListDto> boards = boardService.getLocalSearch(local);
+        List<BoardListResDto> dtos = new ArrayList<>();
+        for(BoardListDto board: boards){
+            int commentSize = 0;
+            try {
+                commentSize = commentServiceFeignClient.getComments(board.getBoardId()).size();
+            } catch (FeignException e){
+                System.out.println(e.getMessage());
+            }
+            dtos.add(new BoardListResDto(board, commentSize));
+        }
         return new ResponseEntity<>(CMRespDto.builder()
                 .isSuccess(true).msg("지역별 검색 목록이 조회되었습니다.").body(dtos).build(), HttpStatus.OK);
     }
@@ -68,7 +89,17 @@ public class BoardController {
     // 해당 해시태그의 게시글 목록
     @GetMapping(value = "/tags/{hashtag}")
     public ResponseEntity<?> getBoardsByTag(@PathVariable String hashtag){
-        List<BoardListResDto> dtos = boardService.getBoardsByTag(hashtag);
+        List<BoardListDto> boards = boardService.getBoardsByTag(hashtag);
+        List<BoardListResDto> dtos = new ArrayList<>();
+        for(BoardListDto board: boards){
+            int commentSize = 0;
+            try {
+                commentSize = commentServiceFeignClient.getComments(board.getBoardId()).size();
+            } catch (FeignException e){
+                System.out.println(e.getMessage());
+            }
+            dtos.add(new BoardListResDto(board, commentSize));
+        }
         return new ResponseEntity<>(CMRespDto.builder()
                 .isSuccess(true).msg("해시태그 목록이 조회되었습니다.").body(dtos).build(), HttpStatus.OK);
     }
@@ -76,7 +107,7 @@ public class BoardController {
     // 글 검색
     @GetMapping(value = "/search/{query}")
     public ResponseEntity<?> getSearch(@PathVariable String query){
-        List<BoardListResDto> dtos = boardService.getSearch(query);
+        List<BoardListDto> dtos = boardService.getSearch(query);
         return new ResponseEntity<>(CMRespDto.builder()
                 .isSuccess(true).msg("검색이 완료되었습니다.").body(dtos).build(), HttpStatus.OK);
     }

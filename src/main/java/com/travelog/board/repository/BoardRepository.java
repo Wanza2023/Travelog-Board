@@ -1,5 +1,6 @@
 package com.travelog.board.repository;
 
+import com.travelog.board.dto.BoardListDto;
 import com.travelog.board.dto.BoardListResDto;
 import com.travelog.board.dto.BookmarkListResDto;
 import com.travelog.board.dto.PopularListDto;
@@ -28,7 +29,7 @@ public interface BoardRepository  extends JpaRepository<Board, Long> {
             "left join fetch bh.hashtag " +
             "where b.nickname = :nickname order by b.createdAt desc"
     )
-    List<BoardListResDto> findByNickname(String nickname);
+    List<BoardListDto> findByNickname(String nickname);
 
     // 지역별 게시글 목록
     @Query("select distinct b from Board b " +
@@ -36,7 +37,7 @@ public interface BoardRepository  extends JpaRepository<Board, Long> {
             "left join fetch bh.hashtag " +
             "where b.local = :local order by b.createdAt desc"
     )
-    List<BoardListResDto> findByLocal(String local);
+    List<BoardListDto> findByLocal(String local);
 
     // 게시글 상세 조회
     @Query("select b from Board b " +
@@ -51,5 +52,5 @@ public interface BoardRepository  extends JpaRepository<Board, Long> {
             "left join fetch bh.hashtag " +
             "where b.title LIKE %:query% OR b.contents LIKE %:query%"
     )
-    List<BoardListResDto> findByTitleOrContentsContaining(@Param("query") String query);
+    List<BoardListDto> findByTitleOrContentsContaining(@Param("query") String query);
 }

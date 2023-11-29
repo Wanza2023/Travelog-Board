@@ -39,30 +39,30 @@ public class BoardService {
 
     //블로그 게시글 목록 조회
     @Transactional(readOnly = true)
-    public List<BoardListResDto> getBlogHome(String nickname){
+    public List<BoardListDto> getBlogHome(String nickname){
         return boardRepository.findByNickname(nickname);
     }
 
     //지역별 게시글 목록 조회
     @Transactional(readOnly = true)
-    public List<BoardListResDto> getLocalSearch(String local) {
+    public List<BoardListDto> getLocalSearch(String local) {
         return boardRepository.findByLocal(local);
     }
 
     //해시태그 목록
-    public List<BoardListResDto> getBoardsByTag(String hashtag){
+    public List<BoardListDto> getBoardsByTag(String hashtag){
         Hashtag tag = hashtagRepository.findByHashtag(hashtag)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 해시태그입니다."));
-        List<BoardListResDto> dtos = new ArrayList<>();
+        List<BoardListDto> dtos = new ArrayList<>();
         for(BoardHashtag board: tag.getBoards()){
-            dtos.add(new BoardListResDto(board.getBoard()));
+            dtos.add(new BoardListDto(board.getBoard()));
         }
         return dtos;
     }
 
     //글 검색
     @Transactional(readOnly = true)
-    public List<BoardListResDto> getSearch(String query){
+    public List<BoardListDto> getSearch(String query){
         return boardRepository.findByTitleOrContentsContaining(query);
     }
 
