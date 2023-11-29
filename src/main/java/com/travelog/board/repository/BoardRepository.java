@@ -13,15 +13,6 @@ import java.util.*;
 
 @Repository
 public interface BoardRepository  extends JpaRepository<Board, Long> {
-//    @Query(value = "select * from board b where b.nickname = :nickname", nativeQuery = true)
-//    List<Board> findAllByName(@Param("nickname")String nickname);
-//
-//    @Query(value = "select * from board b where b.local = :local", nativeQuery = true)
-//    List<Board> findAllByLocal(@Param("local")String local);
-//
-//    @Query(value = "select * from board where status = true order by views desc limit 10", nativeQuery = true)
-//    List<Board> findPopular();
-
     // 북마크 게시글 조회
     @Query("select b from Board b where b.boardId in :boardIds")
     List<BookmarkListResDto> findByBoardIds(List<Long> boardIds);

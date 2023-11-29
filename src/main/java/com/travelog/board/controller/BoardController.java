@@ -3,10 +3,7 @@ package com.travelog.board.controller;
 import com.travelog.board.dto.*;
 import com.travelog.board.entity.Board;
 import com.travelog.board.entity.Comment;
-import com.travelog.board.service.BoardService;
-import com.travelog.board.service.CommentServiceFeignClient;
-import com.travelog.board.service.MemberServiceFeignClient;
-import com.travelog.board.service.ScheduleService;
+import com.travelog.board.service.*;
 import feign.FeignException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
@@ -29,6 +26,8 @@ public class BoardController {
     @Autowired
     private final ScheduleService scheduleService;
     @Autowired
+    private final HashtagService hashtagService;
+    @Autowired
     private final CommentServiceFeignClient commentServiceFeignClient;
     @Autowired
     private final MemberServiceFeignClient memberServiceFeignClient;
@@ -42,9 +41,10 @@ public class BoardController {
     // 인기글 조회
     @GetMapping
     public ResponseEntity<?> getPopular(){
-        List<PopularListDto> dtos = boardService.getPopular();
+        List<PopularListDto> popularList = boardService.getPopular();
+        List<String> hashtags = hashtagService.getHashtag5();
         return new ResponseEntity<>(CMRespDto.builder()
-                .isSuccess(true).msg("인기글 10개 조회").body(dtos).build(),HttpStatus.OK);
+                .isSuccess(true).msg("인기 해시태그 5개, 인기글 10개").body(new MainDto(hashtags, popularList)).build(),HttpStatus.OK);
     }
 
     //블로그 게시글 목록 조회 OK

@@ -127,11 +127,7 @@ public class BoardService {
         //hashtag의 boards에서 해당 게시글 삭제
         for(BoardHashtag boardHashtag : board.getHashtags()){
             Optional<Hashtag> hashtag = hashtagRepository.findByHashtag(boardHashtag.getHashtag().getHashtag());
-            if(hashtag.isPresent()) {
-                hashtag.get().getBoards().remove(boardHashtag);
-            } else {
-                throw new NoSuchElementException();
-            }
+            hashtag.ifPresent(value -> value.getBoards().remove(boardHashtag));
         }
         boardRepository.delete(board);
     }
