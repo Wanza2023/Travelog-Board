@@ -1,7 +1,6 @@
 package com.travelog.board.repository;
 
 import com.travelog.board.dto.BoardListDto;
-import com.travelog.board.dto.BoardListResDto;
 import com.travelog.board.dto.BookmarkListResDto;
 import com.travelog.board.dto.PopularListDto;
 import com.travelog.board.entity.Board;
@@ -35,7 +34,7 @@ public interface BoardRepository  extends JpaRepository<Board, Long> {
     @Query("select distinct b from Board b " +
             "left join fetch b.hashtags bh " +
             "left join fetch bh.hashtag " +
-            "where b.local = :local order by b.createdAt desc"
+            "where b.local = :local and b.status = true order by b.createdAt desc"
     )
     List<BoardListDto> findByLocal(String local);
 
@@ -50,7 +49,7 @@ public interface BoardRepository  extends JpaRepository<Board, Long> {
     @Query("select b from Board b " +
             "left join fetch b.hashtags bh " +
             "left join fetch bh.hashtag " +
-            "where b.title LIKE %:query% OR b.contents LIKE %:query%"
+            "where (b.title LIKE %:query% OR b.contents LIKE %:query%) and b.status = true"
     )
     List<BoardListDto> findByTitleOrContentsContaining(@Param("query") String query);
 }
