@@ -9,9 +9,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -20,25 +19,20 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
-@AllArgsConstructor
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/board")
 public class BoardController {
-    @Autowired
     private final BoardService boardService;
-    @Autowired
     private final ScheduleService scheduleService;
-    @Autowired
     private final HashtagService hashtagService;
-    @Autowired
     private final CommentServiceFeignClient commentServiceFeignClient;
-    @Autowired
     private final MemberServiceFeignClient memberServiceFeignClient;
 
     // 북마크 게시글 목록
     @PostMapping(value = "/bookmark")
-    public List<BookmarkListResDto> getBoards(@RequestBody List<Long> boardIds){
-        return boardService.getBoards(boardIds);
+    public List<BookmarkListResDto> getBookmarkBoards(@RequestBody List<Long> boardIds){
+        return boardService.getBookmarkBoards(boardIds);
     }
 
     // 인기글 조회
@@ -47,7 +41,16 @@ public class BoardController {
         List<PopularListDto> popularList = boardService.getPopular();
         List<String> hashtags = hashtagService.getHashtag5();
         return new ResponseEntity<>(CMRespDto.builder()
-                .isSuccess(true).msg("인기 해시태그 5개, 인기글 10개").body(new MainDto(hashtags, popularList)).build(),HttpStatus.OK);
+                .isSuccess(true).msg("인기 해시태그 5개, 인기글 10개")
+                .body(new MainDto(hashtags, popularList)).build(),HttpStatus.OK);
+    }
+
+    // 전체 게시글 조회
+    @GetMapping(value = "/boards")
+    public ResponseEntity<?> getAllBoard(){
+        List<BoardListDto> boards = boardService.getAllBoard();
+        return new ResponseEntity<>(CMRespDto.builder()
+                .isSuccess(true).body(boards).msg("전체 게시글이 조회되었습니다.").build(), HttpStatus.OK);
     }
 
     //블로그 게시글 목록 조회 OK
@@ -142,6 +145,12 @@ public class BoardController {
 
         return new ResponseEntity<>(CMRespDto.builder()
                 .isSuccess(true).msg("게시글이 조회되었습니다.").body(respDto).build(), HttpStatus.OK);
+    }
+
+    // 댓글 개수 추가
+    @PostMapping(value = "/comments")
+    public int updateCommentSize(@Valid @RequestBody CommentsReqDto commentsReqDto){
+        return boardService.updateCommentSize(commentsReqDto);
     }
 
     //글 생성 + 일정 생성 OK

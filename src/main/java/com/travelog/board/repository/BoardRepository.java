@@ -1,6 +1,7 @@
 package com.travelog.board.repository;
 
 import com.travelog.board.dto.BoardListDto;
+import com.travelog.board.dto.BoardListResDto;
 import com.travelog.board.dto.BookmarkListResDto;
 import com.travelog.board.dto.PopularListDto;
 import com.travelog.board.entity.Board;
@@ -16,6 +17,14 @@ public interface BoardRepository  extends JpaRepository<Board, Long> {
     // 북마크 게시글 조회
     @Query("select b from Board b where b.boardId in :boardIds")
     List<BookmarkListResDto> findByBoardIds(List<Long> boardIds);
+
+    // 전체 게시글 조회
+    @Query("select b from Board b " +
+            "left join fetch b.hashtags bh " +
+            "left join fetch bh.hashtag " +
+            "where b.status = true order by b.createdAt desc"
+    )
+    List<BoardListDto> findAllByStatus();
 
     //인기글 조회
     @Query("select b from Board b where b.status = true order by b.views desc limit 10"

@@ -32,6 +32,7 @@ public class BoardResDto {
     private boolean status;
     private int views;
     private boolean bookmark;
+    private int commentSize;
 
     // public BoardResDto (Board board){
     //     this.boardId = board.getBoardId();
@@ -62,5 +63,6 @@ public class BoardResDto {
         this.schedules = board.getSchedules();
         this.hashtags = board.getHashtags().stream().map(o->o.getHashtag().getHashtag()).collect(Collectors.toList());
         this.bookmark = bookmark;
+        this.commentSize = board.getCommentSize();
     }
 }

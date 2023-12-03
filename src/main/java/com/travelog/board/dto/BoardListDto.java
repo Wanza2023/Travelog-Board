@@ -22,6 +22,7 @@ public class BoardListDto {
     private List<ScheduleDto> schedules;
     private List<String> hashtags;
     private LocalDateTime createdAt;
+    private int commentSize;
 
     public BoardListDto(Board board){
         this.boardId = board.getBoardId();
@@ -33,5 +34,6 @@ public class BoardListDto {
         this.schedules = board.getSchedules().stream().map(ScheduleDto::new).collect(Collectors.toList());
         this.hashtags = board.getHashtags().stream().map(o->o.getHashtag().getHashtag()).collect(Collectors.toList());
         this.createdAt = board.getCreatedAt();
+        this.commentSize = board.getCommentSize();
     }
 }

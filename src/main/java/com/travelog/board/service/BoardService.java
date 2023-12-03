@@ -8,29 +8,30 @@ import com.travelog.board.entity.Hashtag;
 import com.travelog.board.repository.BoardHashtagRepository;
 import com.travelog.board.repository.BoardRepository;
 import com.travelog.board.repository.HashtagRepository;
-import lombok.AllArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 
-@AllArgsConstructor
+@RequiredArgsConstructor
 @Service
 public class BoardService {
-    @Autowired
     private final BoardRepository boardRepository;
-    @Autowired
     private final HashtagRepository hashtagRepository;
-    @Autowired
     private final BoardHashtagRepository boardHashtagRepository;
 
     // 북마크 조회
     @Transactional(readOnly = true)
-    public List<BookmarkListResDto> getBoards(List<Long> boardIds){
+    public List<BookmarkListResDto> getBookmarkBoards(List<Long> boardIds){
         return boardRepository.findByBoardIds(boardIds);
     }
 
+    // 전체 게시글 조회
+    @Transactional(readOnly = true)
+    public List<BoardListDto> getAllBoard() {
+        return boardRepository.findAllByStatus();
+    }
     // 인기글 조회
     @Transactional(readOnly = true)
     public List<PopularListDto> getPopular(){
@@ -85,6 +86,15 @@ public class BoardService {
 //        }
 //        return new BoardResDto(board, comments);
         return new BoardResDto(board, comments, bookmark);
+    }
+
+    // 게시글 댓글 개수 수정
+    @Transactional
+    public int updateCommentSize(CommentsReqDto commentsReqDto){
+        Board board = boardRepository.findById(commentsReqDto.getBoardId())
+                .orElseThrow(()-> new IllegalArgumentException("존재하지 않는 게시글"));
+        board.updateCommentSize(commentsReqDto.getCommentSize());
+        return board.getCommentSize();
     }
 
     // 글 작성 (db 접근이 조금 많이 이루어지는 것 같아 간추려지면 더 좋을 것 같습니당)

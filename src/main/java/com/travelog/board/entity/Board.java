@@ -49,6 +49,7 @@ public class Board {
     private LocalDateTime updatedAt;
     private boolean status;
     private int views;
+    private int commentSize;
 
 //    public void addSchedule(Schedule schedule) {
 //        schedules.add(schedule);
@@ -82,6 +83,10 @@ public class Board {
 
     public void updateViews(int views){
         this.views = views;
+    }
+
+    public void updateCommentSize(int commentSize) {
+        this.commentSize = commentSize;
     }
 
     //public void setComments(List<Comment> comments) {this.comments = comments;}

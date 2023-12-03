@@ -6,7 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Data
@@ -35,5 +35,18 @@ public class BoardListResDto {
         this.hashtags = board.getHashtags();
         this.createdAt = board.getCreatedAt();
         this.commentSize = commentSize;
+    }
+
+    public BoardListResDto(Board board){
+        this.boardId = board.getBoardId();
+        this.nickname = board.getNickname();
+        this.local = board.getLocal();
+        this.title = board.getTitle();
+        this.contents = board.getContents();
+        this.summary = board.getSummary();
+        this.schedules = board.getSchedules().stream().map(ScheduleDto::new).collect(Collectors.toList());
+        this.hashtags = board.getHashtags().stream().map(o->o.getHashtag().getHashtag()).collect(Collectors.toList());
+        this.createdAt = board.getCreatedAt();
+        this.commentSize = board.getCommentSize();
     }
 }
