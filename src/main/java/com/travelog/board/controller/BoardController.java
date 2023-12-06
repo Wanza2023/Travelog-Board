@@ -15,7 +15,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
@@ -35,7 +34,7 @@ public class BoardController {
         return boardService.getBookmarkBoards(boardIds);
     }
 
-    // 인기글 조회
+    // 메인화면 조회
     @GetMapping
     public ResponseEntity<?> getPopular(){
         List<PopularListDto> popularList = boardService.getPopular();
@@ -59,54 +58,24 @@ public class BoardController {
     @GetMapping(value = "/{nickname}")
     public ResponseEntity<?> getBlogHome(@PathVariable String nickname){
         List<BoardListDto> boards = boardService.getBlogHome(nickname);
-        List<BoardListResDto> dtos = new ArrayList<>();
-        for(BoardListDto board: boards){
-            int commentSize = 0;
-            try {
-                commentSize = commentServiceFeignClient.getComments(board.getBoardId()).size();
-            } catch (FeignException e){
-                System.out.println(e.getMessage());
-            }
-            dtos.add(new BoardListResDto(board, commentSize));
-        }
         return new ResponseEntity<>(CMRespDto.builder()
-                .isSuccess(true).msg("블로그 게시글 목록이 조회되었습니다.").body(dtos).build(), HttpStatus.OK);
+                .isSuccess(true).msg("블로그 게시글 목록이 조회되었습니다.").body(boards).build(), HttpStatus.OK);
     }
 
     //지역별 게시글 조회
     @GetMapping(value = "/local/{local}")
     public ResponseEntity<?> getLocalSearch(@PathVariable String local){
         List<BoardListDto> boards = boardService.getLocalSearch(local);
-        List<BoardListResDto> dtos = new ArrayList<>();
-        for(BoardListDto board: boards){
-            int commentSize = 0;
-            try {
-                commentSize = commentServiceFeignClient.getComments(board.getBoardId()).size();
-            } catch (FeignException e){
-                System.out.println(e.getMessage());
-            }
-            dtos.add(new BoardListResDto(board, commentSize));
-        }
         return new ResponseEntity<>(CMRespDto.builder()
-                .isSuccess(true).msg("지역별 검색 목록이 조회되었습니다.").body(dtos).build(), HttpStatus.OK);
+                .isSuccess(true).msg("지역별 검색 목록이 조회되었습니다.").body(boards).build(), HttpStatus.OK);
     }
 
     // 해당 해시태그의 게시글 목록
     @GetMapping(value = "/tags/{hashtag}")
     public ResponseEntity<?> getBoardsByTag(@PathVariable String hashtag){
         List<BoardListDto> boards = boardService.getBoardsByTag(hashtag);
-        List<BoardListResDto> dtos = new ArrayList<>();
-        for(BoardListDto board: boards){
-            int commentSize = 0;
-            try {
-                commentSize = commentServiceFeignClient.getComments(board.getBoardId()).size();
-            } catch (FeignException e){
-                System.out.println(e.getMessage());
-            }
-            dtos.add(new BoardListResDto(board, commentSize));
-        }
         return new ResponseEntity<>(CMRespDto.builder()
-                .isSuccess(true).msg("해시태그 목록이 조회되었습니다.").body(dtos).build(), HttpStatus.OK);
+                .isSuccess(true).msg("해시태그 목록이 조회되었습니다.").body(boards).build(), HttpStatus.OK);
     }
 
     // 글 검색
@@ -127,6 +96,8 @@ public class BoardController {
 
         try{
             comments = commentServiceFeignClient.getComments(boardId);
+            int size = comments.size();
+            boardService.updateCommentSize(new CommentsReqDto(boardId, size));
         } catch (FeignException e){
             log.error("error={}", e.getMessage());
         }
@@ -147,7 +118,7 @@ public class BoardController {
                 .isSuccess(true).msg("게시글이 조회되었습니다.").body(respDto).build(), HttpStatus.OK);
     }
 
-    // 댓글 개수 추가
+    // 댓글 개수 수정
     @PostMapping(value = "/comments")
     public int updateCommentSize(@Valid @RequestBody CommentsReqDto commentsReqDto){
         return boardService.updateCommentSize(commentsReqDto);
@@ -177,6 +148,6 @@ public class BoardController {
     // 글 수정
     @PutMapping(value = "/write/{boardId}")
     public Board updateBoard(@PathVariable Long boardId, @RequestBody Board board){
-        return boardService.upadateBoard(boardId, board);
+        return boardService.updateBoard(boardId, board);
     }
 }

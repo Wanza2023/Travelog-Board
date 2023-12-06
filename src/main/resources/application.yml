@@ -6,7 +6,7 @@ spring:
         name: board
     datasource:
         driver-class-name: org.mariadb.jdbc.Driver
-        url: jdbc:mariadb://172.16.210.130:3306/Board
+        url: jdbc:mariadb://10.0.137.173:3306/Board
         username: root
         password: 1234!
     thymeleaf:
@@ -36,7 +36,7 @@ eureka:
         register-with-eureka: true
         fetch-registry: true
         service-url:
-            defaultZone: ${EUREKA_SERVER_URI:http://172.16.210.131:8761/eureka/}
+            defaultZone: ${EUREKA_SERVER_URI:http://10.0.130.107:8761/eureka/}
 
 
 logging:

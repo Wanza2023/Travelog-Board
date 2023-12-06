@@ -52,11 +52,12 @@ public class BoardService {
 
     //해시태그 목록
     public List<BoardListDto> getBoardsByTag(String hashtag){
-        Hashtag tag = hashtagRepository.findByHashtag(hashtag)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 해시태그입니다."));
+        Optional<Hashtag> tag = hashtagRepository.findByHashtag(hashtag);
         List<BoardListDto> dtos = new ArrayList<>();
-        for(BoardHashtag board: tag.getBoards()){
-            dtos.add(new BoardListDto(board.getBoard()));
+        if(tag.isPresent()){
+            for(BoardHashtag board: tag.get().getBoards()){
+                dtos.add(new BoardListDto(board.getBoard()));
+            }
         }
         return dtos;
     }
@@ -144,7 +145,7 @@ public class BoardService {
 
     // 글 수정( 수정 필요 )
     @Transactional
-    public Board upadateBoard(long id, Board boardA){
+    public Board updateBoard(long id, Board boardA){
         Board boardB = boardRepository.findById(id)
                 .orElseThrow(()->new NoSuchElementException("해당 게시글이 존재하지 않습니다."));
         boardB.updateBoard(boardA);
