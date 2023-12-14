@@ -1,9 +1,6 @@
 package com.travelog.board.repository;
 
-import com.travelog.board.dto.BoardListDto;
-import com.travelog.board.dto.BoardListResDto;
-import com.travelog.board.dto.BookmarkListResDto;
-import com.travelog.board.dto.PopularListDto;
+import com.travelog.board.dto.*;
 import com.travelog.board.entity.Board;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -14,17 +11,31 @@ import java.util.*;
 
 @Repository
 public interface BoardRepository  extends JpaRepository<Board, Long> {
+    // 회원 별 전체 조회수 조회
+    @Query("select " +
+            "new com.travelog.board.dto.SumViewsDto(b.memberId, sum(b.views)) " +
+            "from Board b group by b.memberId")
+    List<SumViewsDto> findSumViewsDtoJPQL();
+
     // 북마크 게시글 조회
     @Query("select b from Board b where b.boardId in :boardIds")
     List<BookmarkListResDto> findByBoardIds(List<Long> boardIds);
 
-    // 전체 게시글 조회
+    // 전체 최신순 게시글 조회
     @Query("select b from Board b " +
             "left join fetch b.hashtags bh " +
             "left join fetch bh.hashtag " +
             "where b.status = true order by b.createdAt desc"
     )
-    List<BoardListDto> findAllByStatus();
+    List<BoardListDto> findAllByStatusOrderByCreatedAt();
+
+    // 전체 조회순 게시글 조회
+    @Query("select b from Board b " +
+            "left join fetch b.hashtags bh " +
+            "left join fetch bh.hashtag " +
+            "where b.status = true order by b.views desc"
+    )
+    List<BoardListDto> findAllByStatusOrderByViews();
 
     //인기글 조회
     @Query("select b from Board b where b.status = true order by b.views desc limit 10"

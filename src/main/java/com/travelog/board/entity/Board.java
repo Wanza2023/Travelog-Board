@@ -19,10 +19,13 @@ import java.util.*;
 public class Board {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long boardId;
+    private Long boardId;
 
     @Column(nullable = false)
     private String nickname;
+
+    @Column(nullable = false)
+    private Long memberId;
 
     @Column(nullable = false)
     private String local;
@@ -31,7 +34,6 @@ public class Board {
     private String title;
 
     @Column(nullable = false)
-    @Lob
     private String contents;
 
     private String summary;

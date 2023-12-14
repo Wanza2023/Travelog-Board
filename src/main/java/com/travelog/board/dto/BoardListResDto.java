@@ -15,6 +15,7 @@ import java.util.stream.Collectors;
 public class BoardListResDto {
     private Long boardId;
     private String nickname;
+    private String pfp;
     private String local;
     private String title;
     private String contents;
@@ -22,11 +23,14 @@ public class BoardListResDto {
     private List<ScheduleDto> schedules;
     private List<String> hashtags;
     private LocalDateTime createdAt;
+    private int views;
     private int commentSize;
+    private boolean bookmarkStatus;
 
-    public BoardListResDto(BoardListDto board, int commentSize){
+    public BoardListResDto(BoardListDto board, MemberInfoDto member, boolean bookmarkStatus){
         this.boardId = board.getBoardId();
-        this.nickname = board.getNickname();
+        this.nickname = member.getNickName();
+        this.pfp = member.getPfp();
         this.local = board.getLocal();
         this.title = board.getTitle();
         this.contents = board.getContents();
@@ -34,19 +38,9 @@ public class BoardListResDto {
         this.schedules = board.getSchedules();
         this.hashtags = board.getHashtags();
         this.createdAt = board.getCreatedAt();
-        this.commentSize = commentSize;
+        this.views = board.getViews();
+        this.commentSize =  board.getCommentSize();
+        this.bookmarkStatus = bookmarkStatus;
     }
 
-    public BoardListResDto(Board board){
-        this.boardId = board.getBoardId();
-        this.nickname = board.getNickname();
-        this.local = board.getLocal();
-        this.title = board.getTitle();
-        this.contents = board.getContents();
-        this.summary = board.getSummary();
-        this.schedules = board.getSchedules().stream().map(ScheduleDto::new).collect(Collectors.toList());
-        this.hashtags = board.getHashtags().stream().map(o->o.getHashtag().getHashtag()).collect(Collectors.toList());
-        this.createdAt = board.getCreatedAt();
-        this.commentSize = board.getCommentSize();
-    }
 }

@@ -21,17 +21,24 @@ public class BoardService {
     private final HashtagRepository hashtagRepository;
     private final BoardHashtagRepository boardHashtagRepository;
 
+    // 회원별 전체 조회수
+    @Transactional(readOnly = true)
+    public List<SumViewsDto> getSumViews(){
+        return boardRepository.findSumViewsDtoJPQL();
+    }
+
     // 북마크 조회
     @Transactional(readOnly = true)
     public List<BookmarkListResDto> getBookmarkBoards(List<Long> boardIds){
         return boardRepository.findByBoardIds(boardIds);
     }
 
-    // 전체 게시글 조회
+    // 전체 게시글 최신순 조회
     @Transactional(readOnly = true)
-    public List<BoardListDto> getAllBoard() {
-        return boardRepository.findAllByStatus();
+    public List<BoardListDto> getAllBoardOrderByCreatedAt() {
+        return boardRepository.findAllByStatusOrderByCreatedAt();
     }
+
     // 인기글 조회
     @Transactional(readOnly = true)
     public List<PopularListDto> getPopular(){

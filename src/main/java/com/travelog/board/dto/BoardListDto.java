@@ -14,6 +14,7 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 public class BoardListDto {
     private Long boardId;
+    private Long memberId;
     private String nickname;
     private String local;
     private String title;
@@ -22,10 +23,12 @@ public class BoardListDto {
     private List<ScheduleDto> schedules;
     private List<String> hashtags;
     private LocalDateTime createdAt;
+    private int views;
     private int commentSize;
 
     public BoardListDto(Board board){
         this.boardId = board.getBoardId();
+        this.memberId = board.getMemberId();
         this.nickname = board.getNickname();
         this.local = board.getLocal();
         this.title = board.getTitle();
@@ -34,6 +37,7 @@ public class BoardListDto {
         this.schedules = board.getSchedules().stream().map(ScheduleDto::new).collect(Collectors.toList());
         this.hashtags = board.getHashtags().stream().map(o->o.getHashtag().getHashtag()).collect(Collectors.toList());
         this.createdAt = board.getCreatedAt();
+        this.views = board.getViews();
         this.commentSize = board.getCommentSize();
     }
 }

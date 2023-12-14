@@ -16,6 +16,8 @@ import java.util.List;
 @AllArgsConstructor
 public class BoardReqDto {
     @NotBlank
+    private Long memberId;
+    @NotBlank
     private String nickname;
     @NotBlank
     private String local;
