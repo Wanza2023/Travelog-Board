@@ -1,5 +1,6 @@
 package com.travelog.board.entity;
 
+import com.travelog.board.dto.BoardReqDto;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
@@ -64,8 +65,9 @@ public class Board {
 //    }
 
     @Builder
-    public Board(String nickname, String local, String title, String contents, String summary,
+    public Board(Long memberId, String nickname, String local, String title, String contents, String summary,
                  List<Schedule> schedules, boolean status) {
+        this.memberId = memberId;
         this.nickname = nickname;
         this.local = local;
         this.title = title;
@@ -74,7 +76,7 @@ public class Board {
         this.schedules = schedules;
         this.status = status;
     }
-    public void updateBoard(Board board){
+    public void updateBoard(BoardReqDto board){
         this.local = board.getLocal();
         this.title = board.getTitle();
         this.contents = board.getContents();

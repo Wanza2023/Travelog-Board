@@ -109,6 +109,7 @@ public class BoardService {
     @Transactional
     public Board createBoard(BoardReqDto boardReqDto) {
         Board board = Board.builder()
+                .memberId(boardReqDto.getMemberId())
                 .nickname(boardReqDto.getNickname())
                 .local(boardReqDto.getLocal())
                 .title(boardReqDto.getTitle())
@@ -152,11 +153,23 @@ public class BoardService {
 
     // 글 수정( 수정 필요 )
     @Transactional
-    public Board updateBoard(long id, Board boardA){
+    public Board updateBoard(long id, BoardReqDto boardReqDto){
         Board boardB = boardRepository.findById(id)
                 .orElseThrow(()->new NoSuchElementException("해당 게시글이 존재하지 않습니다."));
-        boardB.updateBoard(boardA);
+        boardB.updateBoard(boardReqDto);
 
         return boardB;
+    }
+
+    //월별 작성 게시글
+    @Transactional(readOnly = true)
+    public List<Map<String, Object>> getPostPerMonth(Long memberId){
+         return boardRepository.findPostPerMonth(memberId);
+    }
+
+    // 조회수 높은 게시글 5개
+    @Transactional(readOnly = true)
+    public List<BoardListDto> getTop5(Long memberId){
+        return boardRepository.findTop5ByMemberIdOrderByViewsDesc(memberId);
     }
 }

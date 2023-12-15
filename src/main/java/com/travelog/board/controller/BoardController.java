@@ -15,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 @Slf4j
@@ -42,7 +43,7 @@ public class BoardController {
     }
 
     // 메인화면 조회
-    @Operation(summary = "메인 화면 조회")
+    @Operation(summary = "인기 해시태그, 인기 게시글 조회")
     @GetMapping
     public ResponseEntity<?> getPopular(){
         List<PopularListDto> popularList = boardService.getPopular();
@@ -67,11 +68,23 @@ public class BoardController {
     //블로그 게시글 목록 조회 OK
     @Operation(summary = "블로그 개인 홈 조회", description = "nickname을 이용해 board 목록을 조회합니다.")
     @GetMapping(value = "/{nickname}")
-    public ResponseEntity<?> getBlogHome(HttpServletRequest request, @PathVariable String nickname){
-        String reqHeader = request.getHeader("Authorization");
-
+    public ResponseEntity<?> getBlogHome(@PathVariable String nickname){
         List<BoardListDto> boards = boardService.getBlogHome(nickname);
-        List<BoardListResDto> res = refactorToResDto(boards, reqHeader);
+        List<BoardListResDto> boardRes = new ArrayList<>();
+        MemberInfoDto member = new MemberInfoDto(null, nickname, null);
+
+        try {
+            member = memberServiceFeignClient.getMemberInfo(nickname);
+        } catch (FeignException e){
+            log.error("error={}", e.getMessage());
+        }
+
+        for(BoardListDto board: boards){
+            boardRes.add(new BoardListResDto(board, member, false));
+        }
+        HashMap<String, Object> res = new HashMap<>();
+        res.put("profile", member);
+        res.put("board", boardRes);
         return new ResponseEntity<>(CMRespDto.builder()
                 .isSuccess(true).msg("블로그 게시글 목록이 조회되었습니다.").body(res).build(), HttpStatus.OK);
     }
@@ -175,10 +188,27 @@ public class BoardController {
     @Operation(summary = "게시글 수정")
     // 글 수정
     @PutMapping(value = "/write/{boardId}")
-    public Board updateBoard(@PathVariable Long boardId, @RequestBody Board board){
-        return boardService.updateBoard(boardId, board);
+    public ResponseEntity<?> updateBoard(@PathVariable Long boardId, @RequestBody BoardReqDto board){
+        Board res = boardService.updateBoard(boardId, board);
+        return new ResponseEntity<>(CMRespDto.builder().isSuccess(true)
+                .msg("게시글을 수정했습니다.").body(res.getBoardId()).build(), HttpStatus.OK);
     }
 
+    @Operation(summary = "회원별 월별 작성 게시글 개수")
+    @GetMapping(value = "/{memberId}/dashboard/posts")
+    public ResponseEntity<?> getPostPerMonth(@PathVariable Long memberId){
+        return new ResponseEntity<>(CMRespDto.builder().isSuccess(true).msg("월별 작성 게시글 개수")
+                .body(boardService.getPostPerMonth(memberId)).build(), HttpStatus.OK);
+    }
+
+    @Operation(summary = "회원별 조회수 탑 5 게시글")
+    @GetMapping(value = "/{memberId}/dashboard/views")
+    public ResponseEntity<?> getTop5Board(@PathVariable Long memberId){
+        return new ResponseEntity<>(CMRespDto.builder().isSuccess(true).msg("조회수 top 5")
+                .body(boardService.getTop5(memberId)).build(), HttpStatus.OK);
+    }
+
+    // 작성자 프로필, 북마크 상태 설정
     private List<BoardListResDto> refactorToResDto(List<BoardListDto> boards, String reqHeader){
         List<Long> memberIds = boards.stream().map(BoardListDto::getMemberId).toList();
         boolean bookmarkStatus = false;
@@ -189,7 +219,7 @@ public class BoardController {
 
         try {
             // 모든 작성자 정보 받아오기
-            members = memberServiceFeignClient.getMemberInfo(memberIds);
+            members = memberServiceFeignClient.getMembersInfo(memberIds);
 
             // 로그인한 경우
             if (reqHeader != null && reqHeader.startsWith("Bearer")) {

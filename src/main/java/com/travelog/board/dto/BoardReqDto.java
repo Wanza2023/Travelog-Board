@@ -2,6 +2,7 @@ package com.travelog.board.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import com.travelog.board.entity.Schedule;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -15,7 +16,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class BoardReqDto {
-    @NotBlank
+    @NotNull
     private Long memberId;
     @NotBlank
     private String nickname;
