@@ -2,7 +2,6 @@ package com.travelog.board.controller;
 
 import com.travelog.board.dto.*;
 import com.travelog.board.entity.Board;
-import com.travelog.board.entity.Comment;
 import com.travelog.board.service.*;
 import feign.FeignException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -26,7 +25,6 @@ public class BoardController {
     private final BoardService boardService;
     private final ScheduleService scheduleService;
     private final HashtagService hashtagService;
-    private final CommentServiceFeignClient commentServiceFeignClient;
     private final MemberServiceFeignClient memberServiceFeignClient;
 
     @Operation(summary = "회원별 전체 조회수")
@@ -126,18 +124,8 @@ public class BoardController {
     @Operation(summary = "게시글 상세 조회")
     @GetMapping(value = "/{nickname}/{boardId}")
     public ResponseEntity<?> getBoard(@PathVariable String nickname, @PathVariable Long boardId, HttpServletRequest request){
-
-        List<Comment> comments = null;
         Boolean bookmarkStatus = false;
         String reqHeader = request.getHeader("Authorization");
-
-        try{
-            comments = commentServiceFeignClient.getComments(boardId);
-            int size = comments.size();
-            boardService.updateCommentSize(new CommentsReqDto(boardId, size));
-        } catch (FeignException e){
-            log.error("error={}", e.getMessage());
-        }
 
         if (reqHeader != null && reqHeader.startsWith("Bearer")) {
             String token = reqHeader.split(" ")[1];
@@ -149,7 +137,7 @@ public class BoardController {
             }
         }
 
-        BoardResDto respDto =  boardService.readBoard(boardId, nickname, comments, bookmarkStatus);
+        BoardResDto respDto =  boardService.readBoard(boardId, nickname, bookmarkStatus);
 
         return new ResponseEntity<>(CMRespDto.builder()
                 .isSuccess(true).msg("게시글이 조회되었습니다.").body(respDto).build(), HttpStatus.OK);

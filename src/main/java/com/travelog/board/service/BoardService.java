@@ -77,23 +77,10 @@ public class BoardService {
 
     // 게시글 조회(조회수 증가)
     @Transactional
-    public BoardResDto readBoard(long id, String nickname, List<Comment> comments, boolean bookmark){
+    public BoardResDto readBoard(long id, String nickname, boolean bookmark){
         Board board = boardRepository.findByBoardIdAndNickname(id, nickname);
-        System.out.println(board);
         board.updateViews(board.getViews()+1);
-        // 해시태그 가져오기
-//        List<String> hashtag = new ArrayList<>();
-//        for(BoardHashtag boardHashtag:board.getHashtags()){
-//            hashtag.add(boardHashtag.getHashtag().getHashtag());
-//        }
-//        List<Comment> comments = null;
-//        try{
-//            comments = commentServiceFeignClient.getComments(id);
-//        } catch (FeignException e){
-//            System.out.println(e.getMessage());
-//        }
-//        return new BoardResDto(board, comments);
-        return new BoardResDto(board, comments, bookmark);
+        return new BoardResDto(board, bookmark);
     }
 
     // 게시글 댓글 개수 수정

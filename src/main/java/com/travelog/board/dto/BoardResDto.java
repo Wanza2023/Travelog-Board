@@ -25,8 +25,6 @@ public class BoardResDto {
     private List<Schedule> schedules;
     private List<String> hashtags;
 
-    private List<Comment> comments;
-
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private boolean status;
@@ -34,28 +32,13 @@ public class BoardResDto {
     private boolean bookmark;
     private int commentSize;
 
-    // public BoardResDto (Board board){
-    //     this.boardId = board.getBoardId();
-    //     this.nickname = board.getNickname();
-    //      //schedules = board.getSchedules();
-    //     this.local = board.getLocal();
-    //     this.title = board.getTitle();
-    //     this.contents = board.getContents();
-    //     this.summary = board.getSummary();
-    //     this.createdAt = board.getCreatedAt();
-    //     this.updatedAt = board.getUpdatedAt();
-    //     this.views = board.getViews();
-
-    // }
-
-    public BoardResDto(Board board, List<Comment> comments, boolean bookmark){
+    public BoardResDto(Board board, boolean bookmark){
         this.boardId = board.getBoardId();
         this.nickname = board.getNickname();
         this.local = board.getLocal();
         this.title = board.getTitle();
         this.contents = board.getContents();
         this.summary = board.getSummary();
-        this.comments = comments;
         this.createdAt = board.getCreatedAt();
         this.updatedAt = board.getUpdatedAt();
         this.status = board.isStatus();
