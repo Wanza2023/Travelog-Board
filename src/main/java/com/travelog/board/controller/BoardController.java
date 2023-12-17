@@ -219,28 +219,42 @@ public class BoardController {
                 log.error("error={}", e.getMessage());
         }
 
+        for(BoardListDto board: boards){
+            // 작성자들 정보에서 해당 게시글의 작성자와 일치 하는 멤버 찾기
+            member = members.stream()
+                    .filter(o->o.getMemberId().equals(board.getMemberId()))
+                    .findFirst()
+                    .orElseGet(()->new MemberInfoDto(null, "존재하지 않은 회원입니다.", null));
+            // 북마크 게시글이 있으면
+            if(!bookmarkList.isEmpty()){
+                // 북마크 게시글인지 확인
+                bookmarkStatus = bookmarkList.stream().anyMatch(o->o.equals(board.getBoardId()));
+            }
+            res.add(new BoardListResDto(board, member, bookmarkStatus));
+        }
+
         // 작성자 정보 받아왔을 경우
-        if (!members.isEmpty()){
-            for(BoardListDto board: boards){
-                // 작성자들 정보에서 해당 게시글의 작성자와 일치 하는 멤버 찾기
-                member = members.stream()
-                        .filter(o->o.getMemberId().equals(board.getMemberId()))
-                        .findFirst()
-                        .orElseThrow(()->new IllegalArgumentException("존재하지 않은 멤버"));
-                // 북마크 게시글이 있으면
-                if(!bookmarkList.isEmpty()){
-                    // 북마크 게시글인지 확인
-                    bookmarkStatus = bookmarkList.stream().anyMatch(o->o.equals(board.getBoardId()));
-                }
-                res.add(new BoardListResDto(board, member, bookmarkStatus));
-            }
-        }
-        else {
-            for(BoardListDto board: boards){
-                member = new MemberInfoDto(board.getMemberId(), board.getNickname(), null);
-                res.add(new BoardListResDto(board, member, bookmarkStatus));
-            }
-        }
+//        if (!members.isEmpty()){
+//            for(BoardListDto board: boards){
+//                // 작성자들 정보에서 해당 게시글의 작성자와 일치 하는 멤버 찾기
+//                member = members.stream()
+//                        .filter(o->o.getMemberId().equals(board.getMemberId()))
+//                        .findFirst()
+//                        .orElseThrow(()->new IllegalArgumentException("존재하지 않은 멤버"));
+//                // 북마크 게시글이 있으면
+//                if(!bookmarkList.isEmpty()){
+//                    // 북마크 게시글인지 확인
+//                    bookmarkStatus = bookmarkList.stream().anyMatch(o->o.equals(board.getBoardId()));
+//                }
+//                res.add(new BoardListResDto(board, member, bookmarkStatus));
+//            }
+//        }
+//        else {
+//            for(BoardListDto board: boards){
+//                member = new MemberInfoDto(board.getMemberId(), board.getNickname(), null);
+//                res.add(new BoardListResDto(board, member, bookmarkStatus));
+//            }
+//        }
 
         return res;
     }

@@ -1,25 +1,26 @@
 package com.travelog.board.service;
 
 import com.travelog.board.dto.*;
-import com.travelog.board.entity.Board;
-import com.travelog.board.entity.BoardHashtag;
-import com.travelog.board.entity.Comment;
-import com.travelog.board.entity.Hashtag;
+import com.travelog.board.entity.*;
 import com.travelog.board.repository.BoardHashtagRepository;
 import com.travelog.board.repository.BoardRepository;
 import com.travelog.board.repository.HashtagRepository;
+import com.travelog.board.repository.ScheduleRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 
+@Slf4j
 @RequiredArgsConstructor
 @Service
 public class BoardService {
     private final BoardRepository boardRepository;
     private final HashtagRepository hashtagRepository;
     private final BoardHashtagRepository boardHashtagRepository;
+    private final ScheduleRepository scheduleRepository;
 
     // 회원별 전체 조회수
     @Transactional(readOnly = true)
@@ -143,8 +144,24 @@ public class BoardService {
     public Board updateBoard(long id, BoardReqDto boardReqDto){
         Board boardB = boardRepository.findById(id)
                 .orElseThrow(()->new NoSuchElementException("해당 게시글이 존재하지 않습니다."));
+        List<Long> ids = boardB.getHashtags().stream().map(BoardHashtag::getId).toList();
+        // 해시태그 삭제
+        boardHashtagRepository.deleteAllByIds(ids);
         boardB.updateBoard(boardReqDto);
 
+        // 다시 저장
+        for (String hashtag : boardReqDto.getHashtags()) {
+            Hashtag hashtag1 = hashtagRepository.findByHashtag(hashtag)
+                    .orElseGet(() -> hashtagRepository.save(Hashtag.builder()
+                            .hashtag(hashtag)
+                            .build()));
+
+            BoardHashtag boardHashtag = new BoardHashtag(boardB, hashtag1);
+            boardB.getHashtags().add(boardHashtag);
+            hashtag1.getBoards().add(boardHashtag);
+
+            boardHashtagRepository.save(boardHashtag);
+        }
         return boardB;
     }
 
