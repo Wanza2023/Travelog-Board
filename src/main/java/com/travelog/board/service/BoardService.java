@@ -1,16 +1,30 @@
 package com.travelog.board.service;
 
+import co.elastic.clients.elasticsearch.ElasticsearchClient;
+import co.elastic.clients.elasticsearch.core.SearchResponse;
+import co.elastic.clients.elasticsearch.core.search.Hit;
+import co.elastic.clients.json.jackson.JacksonJsonpMapper;
+import co.elastic.clients.transport.ElasticsearchTransport;
+import co.elastic.clients.transport.rest_client.RestClientTransport;
 import com.travelog.board.dto.*;
 import com.travelog.board.entity.*;
+import com.travelog.board.entity.document.BoardDocument;
 import com.travelog.board.repository.BoardHashtagRepository;
 import com.travelog.board.repository.BoardRepository;
 import com.travelog.board.repository.HashtagRepository;
 import com.travelog.board.repository.ScheduleRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.http.Header;
+import org.apache.http.HttpHost;
+import org.apache.http.message.BasicHeader;
+import org.elasticsearch.client.RestClient;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 @Slf4j
@@ -21,6 +35,23 @@ public class BoardService {
     private final HashtagRepository hashtagRepository;
     private final BoardHashtagRepository boardHashtagRepository;
     private final ScheduleRepository scheduleRepository;
+
+    @Value("${elastic.serverUrl}")
+    private String serverUrl;
+    @Value("${elastic.apiKey}")
+    private String apiKey;
+
+    RestClient restClient = RestClient
+            .builder(HttpHost.create(serverUrl))
+            .setDefaultHeaders(new Header[]{
+                    new BasicHeader("Authorization", "ApiKey " + apiKey)
+            })
+            .build();
+
+    ElasticsearchTransport transport = new RestClientTransport(
+            restClient, new JacksonJsonpMapper());
+
+    ElasticsearchClient client = new ElasticsearchClient(transport);
 
     // 회원별 전체 조회수
     @Transactional(readOnly = true)
@@ -72,8 +103,34 @@ public class BoardService {
 
     //글 검색
     @Transactional(readOnly = true)
-    public List<BoardListDto> getSearch(String query){
-        return boardRepository.findByTitleOrContentsContaining(query);
+    public List<BoardDocumentDto> getSearch(String query) throws IOException {
+
+        List<String> arr = new ArrayList<>();
+        arr.add("title"); arr.add("contents");
+        SearchResponse<BoardDocument> search = client.search(s -> s
+                        .index("sourcedb2.board.board").size(5000)
+                        .query(q -> q.queryString(qs ->
+                                qs.fields(arr).query("*"+query+"*"))
+                        ),
+                BoardDocument.class
+        );
+        List<BoardDocumentDto> comments = new ArrayList<>();
+        for (Hit<BoardDocument> hit: search.hits().hits()) {
+
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            Date timeInDate = new Date(hit.source().getCreated_at());
+            String timeInFormat = sdf.format(timeInDate);
+
+            comments.add(new BoardDocumentDto(hit.source().getBoard_id(),
+                    hit.source().getMember_id(),hit.source().getNickname(),
+                    hit.source().getLocal(),
+                    hit.source().getTitle(), hit.source().getContents(),
+                    hit.source().getSummary(),
+                    timeInFormat,
+                    hit.source().getViews(),
+                    hit.source().getComment_size()));
+        }
+        return comments;
     }
 
     // 게시글 조회(조회수 증가)

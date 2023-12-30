@@ -1,0 +1,72 @@
+{
+    "properties": {
+      "board_id": {
+        "type": "long"
+      },
+      "comment_size": {
+        "type": "integer",
+        "null_value": 0
+      },
+      "contents": {
+        "type": "text",
+        "fields": {
+          "keyword": {
+            "type": "keyword",
+            "ignore_above": 256
+          }
+        }
+      },
+      "created_at": {
+        "type": "date"
+      },
+      "local": {
+        "type": "text",
+        "fields": {
+          "keyword": {
+            "type": "keyword",
+            "ignore_above": 256
+          }
+        }
+      },
+      "member_id": {
+        "type": "long"
+      },
+      "nickname": {
+        "type": "text",
+        "fields": {
+          "keyword": {
+            "type": "keyword",
+            "ignore_above": 256
+          }
+        }
+      },
+      "status": {
+        "type": "short"
+      },
+      "summary": {
+        "type": "text",
+        "fields": {
+          "keyword": {
+            "type": "keyword",
+            "ignore_above": 256
+          }
+        }
+      },
+      "title": {
+        "type": "text",
+        "fields": {
+          "keyword": {
+            "type": "keyword",
+            "ignore_above": 256
+          }
+        }
+      },
+      "updated_at": {
+        "type": "date"
+      },
+      "views": {
+        "type": "integer",
+        "null_value": 0
+      }
+    }
+}

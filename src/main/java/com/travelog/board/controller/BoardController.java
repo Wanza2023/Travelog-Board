@@ -13,6 +13,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -112,12 +113,11 @@ public class BoardController {
     // 글 검색
     @Operation(summary = "제목 또는 내용으로 게시글 검색")
     @GetMapping(value = "/search/{query}")
-    public ResponseEntity<?> getSearch(HttpServletRequest request, @PathVariable String query){
+    public ResponseEntity<?> getSearch(HttpServletRequest request, @PathVariable String query) throws IOException {
         String reqHeader = request.getHeader("Authorization");
-        List<BoardListDto> boards = boardService.getSearch(query);
-        List<BoardListResDto> res = refactorToResDto(boards, reqHeader);
+        List<BoardDocumentDto> boards = boardService.getSearch(query);
         return new ResponseEntity<>(CMRespDto.builder()
-                .isSuccess(true).msg("검색이 완료되었습니다.").body(res).build(), HttpStatus.OK);
+                .isSuccess(true).msg("검색이 완료되었습니다.").body(boards).build(), HttpStatus.OK);
     }
 
     // 글 조회 OK
